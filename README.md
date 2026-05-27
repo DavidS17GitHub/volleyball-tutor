@@ -17,6 +17,23 @@ npm install
 npm run dev
 ```
 
+## Run with Docker
+
+Build and run the production container:
+
+```bash
+docker build -t volleyball-tutor .
+docker run --rm -p 8080:8080 volleyball-tutor
+```
+
+Then open `http://localhost:8080`.
+
+For Azure Web App for Containers, configure the app setting:
+
+```bash
+WEBSITES_PORT=8080
+```
+
 ## Lesson metadata
 
 Lesson metadata lives in `public/lessons.json` for the MVP. Add or edit one object
