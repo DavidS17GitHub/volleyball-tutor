@@ -42,6 +42,26 @@ endpoint that returns the same JSON array.
 
 The app is ready for Azure-hosted videos. Put clip URLs in `public/lessons.json`, or set `VITE_AZURE_VIDEO_BASE_URL` and use relative `videoPath` values in the lesson data.
 
+For the current development storage account, create a local `.env` file with:
+
+```bash
+VITE_AZURE_VIDEO_BASE_URL=https://volleyballtutordevsa.blob.core.windows.net/volleyballtutordevcontainer
+```
+
+Then point each lesson at one uploaded blob filename:
+
+```json
+{
+  "videoPath": "volleyball1_00030997_V1-0001.mov"
+}
+```
+
+The app will combine those into:
+
+```text
+https://volleyballtutordevsa.blob.core.windows.net/volleyballtutordevcontainer/volleyball1_00030997_V1-0001.mov
+```
+
 For production, use Azure Blob Storage static URLs or Azure Media Services/Streaming Endpoint URLs with CORS enabled for the app domain.
 
 ## Database direction
