@@ -39,9 +39,15 @@ export function VideoQuizPlayer({
   };
 
   const handleAnswer = (selected: SetOption) => {
+    const video = videoRef.current;
     const isCorrect = selected === clip.correctAnswer;
+
     setAnswer({ selected, isCorrect });
     onComplete(clip.id);
+
+    if (video) {
+      void video.play();
+    }
   };
 
   const handleReplay = () => {
