@@ -100,3 +100,16 @@ small and changes manually. For an Azure-hosted production app, Azure Cosmos DB 
 natural next choice because it has an Azure-native free tier for small workloads and
 keeps hosting, videos, and metadata under one cloud account. MongoDB Atlas is still a
 good option if portability or MongoDB-specific tooling matters more.
+
+## Private video access
+
+The static frontend cannot securely access a private Storage Account by itself. The
+repository includes a separate backend scaffold in `apps/sas-api` that can be deployed
+as another Azure Web App. It uses managed identity to generate short-lived read-only
+SAS URLs for private blobs.
+
+After deploying that API, set the frontend build variable:
+
+```bash
+VITE_LESSONS_METADATA_URL=https://your-sas-api.azurewebsites.net/api/lessons
+```

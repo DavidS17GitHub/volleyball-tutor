@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build app and container
+    name: Build frontend, API, and containers
     runs-on: ubuntu-latest
 
     steps:
@@ -36,5 +36,16 @@ jobs:
       - name: Build app
         run: npm run build
 
-      - name: Build Docker image
+      - name: Install API dependencies
+        working-directory: apps/sas-api
+        run: npm ci
+
+      - name: Build API
+        working-directory: apps/sas-api
+        run: npm run build
+
+      - name: Build frontend Docker image
         run: docker build -t volleyball-tutor:ci .
+
+      - name: Build API Docker image
+        run: docker build -f apps/sas-api/Dockerfile -t volleyball-tutor-sas-api:ci .

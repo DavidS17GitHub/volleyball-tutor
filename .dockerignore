@@ -1,4 +1,6 @@
 node_modules
+apps/sas-api/node_modules
+apps/sas-api/dist
 dist
 .git
 .env
