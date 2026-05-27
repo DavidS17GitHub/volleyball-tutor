@@ -1,6 +1,6 @@
 import type { LessonClip, SetOption } from "../types";
+import { getRuntimeConfig } from "../runtimeConfig";
 
-const metadataUrl = import.meta.env.VITE_LESSONS_METADATA_URL ?? "/lessons.json";
 const setOptions: SetOption[] = ["outside", "pipe", "center", "opposite"];
 
 const isLessonClip = (value: unknown): value is LessonClip => {
@@ -25,6 +25,11 @@ const isLessonClip = (value: unknown): value is LessonClip => {
 };
 
 export async function loadLessonClips(): Promise<LessonClip[]> {
+  const metadataUrl =
+    getRuntimeConfig().lessonsMetadataUrl ??
+    import.meta.env.VITE_LESSONS_METADATA_URL ??
+    "/lessons.json";
+
   const response = await fetch(metadataUrl);
 
   if (!response.ok) {

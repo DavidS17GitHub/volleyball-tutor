@@ -36,28 +36,28 @@
     "explanation": "The setter is drifting right and the opposite is presenting a stable target, which makes the right-pin set the highest-control choice."
   },
   {
-    "id": "out-of-system-opposite-1",
+    "id": "out-of-system-opposite-2",
     "title": "Out of System: Right Pin Release",
     "skillFocus": "Choose the safer outlet when the setter is pushed off target.",
-    "videoPath": "volleyball1_00034974_V1-0005.mov",
+    "videoPath": "volleyball1_00035931_V1-0005.mov",
     "pauseAtSeconds": 3.16,
     "correctAnswer": "opposite",
     "explanation": "The setter is drifting right and the opposite is presenting a stable target, which makes the right-pin set the highest-control choice."
   },
   {
-    "id": "out-of-system-opposite-1",
+    "id": "out-of-system-opposite-3",
     "title": "Out of System: Right Pin Release",
     "skillFocus": "Choose the safer outlet when the setter is pushed off target.",
-    "videoPath": "volleyball1_00034974_V1-0006.mov",
+    "videoPath": "volleyball1_00037558_V1-0006.mov",
     "pauseAtSeconds": 3.16,
     "correctAnswer": "opposite",
     "explanation": "The setter is drifting right and the opposite is presenting a stable target, which makes the right-pin set the highest-control choice."
   },
   {
-    "id": "out-of-system-opposite-1",
+    "id": "out-of-system-opposite-4",
     "title": "Out of System: Right Pin Release",
     "skillFocus": "Choose the safer outlet when the setter is pushed off target.",
-    "videoPath": "volleyball1_00034974_V1-0007.mov",
+    "videoPath": "volleyball1_00039027_V1-0007.mov",
     "pauseAtSeconds": 3.16,
     "correctAnswer": "opposite",
     "explanation": "The setter is drifting right and the opposite is presenting a stable target, which makes the right-pin set the highest-control choice."

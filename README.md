@@ -34,14 +34,16 @@ For Azure Web App for Containers, configure the app setting:
 WEBSITES_PORT=8080
 ```
 
-The Dockerfile bakes `VITE_AZURE_VIDEO_BASE_URL` into the static Vite build. To
-override it during image creation:
+The frontend container writes `/config.js` at startup from Azure App Settings. For
+private Storage Account access, point the frontend at the SAS API instead of directly
+at Blob Storage:
 
 ```bash
-docker build \
-  --build-arg VITE_AZURE_VIDEO_BASE_URL=https://your-account.blob.core.windows.net/your-container \
-  -t volleyball-tutor .
+VITE_LESSONS_METADATA_URL=https://your-sas-api.azurewebsites.net/api/lessons
 ```
+
+Do not set `VITE_AZURE_VIDEO_BASE_URL` in production when the Storage Account has
+anonymous access disabled. The SAS API will return signed `videoUrl` values.
 
 ## Lesson metadata
 
