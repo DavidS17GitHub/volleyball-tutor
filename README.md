@@ -34,6 +34,15 @@ For Azure Web App for Containers, configure the app setting:
 WEBSITES_PORT=8080
 ```
 
+The Dockerfile bakes `VITE_AZURE_VIDEO_BASE_URL` into the static Vite build. To
+override it during image creation:
+
+```bash
+docker build \
+  --build-arg VITE_AZURE_VIDEO_BASE_URL=https://your-account.blob.core.windows.net/your-container \
+  -t volleyball-tutor .
+```
+
 ## Lesson metadata
 
 Lesson metadata lives in `public/lessons.json` for the MVP. Add or edit one object
