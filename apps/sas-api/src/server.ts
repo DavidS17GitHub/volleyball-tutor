@@ -2,7 +2,7 @@ import cors from "cors";
 import express from "express";
 import { createReadOnlyBlobUrl } from "./blobSas.js";
 import { config } from "./config.js";
-import { loadLessonClips } from "./lessonStore.js";
+import { loadLessonClips, loadLessonClipsFromCosmos } from "./lessonStore.js";
 
 const app = express();
 
@@ -18,7 +18,22 @@ app.get("/health", (_request, response) => {
 
 app.get("/api/lessons", async (_request, response, next) => {
   try {
-    const lessons = await loadLessonClips(config.lessonsFilePath);
+    const lessons = await (async () => {
+      if (config.lessonStore === "file") {
+        return loadLessonClips(config.lessonsFilePath);
+      }
+
+      if (!config.cosmosConnectionString) {
+        throw new Error("Missing required environment variable: COSMOS_CONNECTION_STRING");
+      }
+
+      return loadLessonClipsFromCosmos({
+        connectionString: config.cosmosConnectionString,
+        databaseName: config.cosmosDatabaseName,
+        containerName: config.cosmosContainerName,
+      });
+    })();
+
     const signedLessons = await Promise.all(
       lessons.map(async (lesson) => {
         if (!lesson.videoPath) {

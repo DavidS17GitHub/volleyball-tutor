@@ -9,6 +9,7 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@azure/cosmos": "^4.9.3",
     "@azure/identity": "^4.13.0",
     "@azure/storage-blob": "^12.29.1",
     "cors": "^2.8.5",

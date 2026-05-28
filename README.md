@@ -97,11 +97,13 @@ For production, use Azure Blob Storage static URLs or Azure Media Services/Strea
 Do not connect the browser directly to MongoDB or Cosmos DB. Keep database credentials
 on a backend API, then have the UI call that API through `VITE_LESSONS_METADATA_URL`.
 
-For this MVP, `public/lessons.json` is the cheapest option because lesson metadata is
-small and changes manually. For an Azure-hosted production app, Azure Cosmos DB is the
-natural next choice because it has an Azure-native free tier for small workloads and
-keeps hosting, videos, and metadata under one cloud account. MongoDB Atlas is still a
-good option if portability or MongoDB-specific tooling matters more.
+The backend in `apps/sas-api` can now read lesson metadata from Azure Cosmos DB.
+Deploy it with `LESSON_STORE=cosmos`, `COSMOS_CONNECTION_STRING`, `COSMOS_DATABASE_NAME=lessons`,
+and `COSMOS_CONTAINER_NAME=lessonClips`, then point the frontend at:
+
+```bash
+VITE_LESSONS_METADATA_URL=https://volleyball-tutor-dev-backend-cwakevadfqdpbxhv.eastus2-01.azurewebsites.net/api/lessons
+```
 
 ## Private video access
 
