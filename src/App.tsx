@@ -5,7 +5,11 @@ import { VideoQuizPlayer } from "./components/VideoQuizPlayer";
 import { loadLessonClips } from "./services/lessonCatalog";
 import type { LessonClip } from "./types";
 
-export function App() {
+interface AppProps {
+  getAccessToken?: () => Promise<string>;
+}
+
+export function App({ getAccessToken }: AppProps) {
   const [lessonClips, setLessonClips] = useState<LessonClip[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
@@ -19,7 +23,8 @@ export function App() {
   useEffect(() => {
     let isActive = true;
 
-    loadLessonClips()
+    Promise.resolve(getAccessToken?.())
+      .then((accessToken) => loadLessonClips(accessToken))
       .then((clips) => {
         if (!isActive) {
           return;
@@ -46,7 +51,7 @@ export function App() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [getAccessToken]);
 
   const handleComplete = (clipId: string) => {
     setCompletedIds((existing) =>

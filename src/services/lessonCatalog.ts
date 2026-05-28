@@ -24,15 +24,29 @@ const isLessonClip = (value: unknown): value is LessonClip => {
   );
 };
 
-export async function loadLessonClips(): Promise<LessonClip[]> {
+export async function loadLessonClips(accessToken?: string): Promise<LessonClip[]> {
   const metadataUrl =
     getRuntimeConfig().lessonsMetadataUrl ??
     import.meta.env.VITE_LESSONS_METADATA_URL ??
     "/lessons.json";
 
-  const response = await fetch(metadataUrl);
+  const response = await fetch(metadataUrl, {
+    headers: accessToken
+      ? {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      : undefined,
+  });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Please sign in to load lessons.");
+    }
+
+    if (response.status === 403) {
+      throw new Error("Premium access is required for these lessons.");
+    }
+
     throw new Error(`Unable to load lesson metadata from ${metadataUrl}`);
   }
 

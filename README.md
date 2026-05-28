@@ -105,6 +105,15 @@ and `COSMOS_CONTAINER_NAME=lessonClips`, then point the frontend at:
 VITE_LESSONS_METADATA_URL=https://volleyball-tutor-dev-backend-cwakevadfqdpbxhv.eastus2-01.azurewebsites.net/api/lessons
 ```
 
+When backend auth is enabled, also configure the frontend container with the External
+ID app registration values so it can sign users in and request an API token:
+
+```bash
+VITE_AUTH_CLIENT_ID=61229800-627e-4e0a-81e0-69eaf180e79b
+VITE_AUTH_AUTHORITY=https://your-tenant-subdomain.ciamlogin.com/your-tenant-id/
+VITE_AUTH_API_SCOPE=api://6076bb3f-3e1f-4222-954a-801d86ab6f2e/access_as_user
+```
+
 For cross-device progress and premium access, use the same Cosmos DB database with a
 second container named `userProfiles` using partition key `/userId`. The backend can
 validate Entra External ID/B2C JWTs with `AUTH_REQUIRED=true` and can block non-premium
