@@ -1,7 +1,7 @@
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { useMsal } from "@azure/msal-react";
 import { LogIn, LogOut } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { App } from "./App";
 import type { AuthRuntimeConfig } from "./authConfig";
 
@@ -11,6 +11,7 @@ interface AuthenticatedAppProps {
 
 export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
   const { accounts, instance } = useMsal();
+  const [authError, setAuthError] = useState<string | null>(null);
   const account = accounts[0];
 
   const getAccessToken = useMemo(
@@ -29,10 +30,10 @@ export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
         return result.accessToken;
       } catch (error) {
         if (error instanceof InteractionRequiredAuthError) {
-          const result = await instance.acquireTokenPopup({
+          await instance.acquireTokenRedirect({
             scopes: [auth.apiScope],
           });
-          return result.accessToken;
+          throw new Error("Finishing sign-in. Please wait for the page to reload.");
         }
 
         throw error;
@@ -42,13 +43,19 @@ export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
   );
 
   const handleSignIn = async () => {
-    await instance.loginPopup({
-      scopes: [auth.apiScope],
-    });
+    setAuthError(null);
+
+    try {
+      await instance.loginRedirect({
+        scopes: [auth.apiScope],
+      });
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Unable to start sign-in.");
+    }
   };
 
   const handleSignOut = async () => {
-    await instance.logoutPopup({
+    await instance.logoutRedirect({
       account,
     });
   };
@@ -59,6 +66,7 @@ export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
         <p className="eyebrow">Premium access</p>
         <h1>Sign in to start training</h1>
         <p>Your progress and lesson access are tied to your account.</p>
+        {authError ? <p className="error-text">{authError}</p> : null}
         <button className="primary-action action-with-icon" onClick={handleSignIn} type="button">
           <LogIn size={18} />
           Sign in

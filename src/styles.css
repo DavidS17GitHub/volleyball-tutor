@@ -320,6 +320,12 @@ video {
   line-height: 1.6;
 }
 
+.center-state .error-text {
+  color: #923224;
+  font-weight: 700;
+  margin-top: 0;
+}
+
 @media (max-width: 980px) {
   .app-shell,
   .player-shell {
