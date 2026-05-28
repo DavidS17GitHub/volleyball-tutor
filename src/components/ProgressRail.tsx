@@ -7,26 +7,30 @@ interface ProgressRailProps {
 }
 
 export function ProgressRail({ clips, currentIndex, completedIds }: ProgressRailProps) {
+  const currentClip = clips[currentIndex];
+
+  if (!currentClip) {
+    return null;
+  }
+
   return (
     <aside className="progress-rail" aria-label="Lesson clips">
       <p className="eyebrow">Lesson</p>
       <h2>Set selection reads</h2>
       <ol>
-        {clips.map((clip, index) => (
-          <li
-            className={[
-              index === currentIndex ? "active" : "",
-              completedIds.includes(clip.id) ? "complete" : "",
-            ].join(" ")}
-            key={clip.id}
-          >
-            <span>{index + 1}</span>
-            <div>
-              <strong>{clip.title}</strong>
-              <small>{clip.skillFocus}</small>
-            </div>
-          </li>
-        ))}
+        <li
+          className={[
+            "active",
+            completedIds.includes(currentClip.id) ? "complete" : "",
+          ].join(" ")}
+          value={currentIndex + 1}
+        >
+          <span>{currentIndex + 1}</span>
+          <div>
+            <strong>{currentClip.title}</strong>
+            <small>{currentClip.skillFocus}</small>
+          </div>
+        </li>
       </ol>
     </aside>
   );
