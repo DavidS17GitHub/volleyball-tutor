@@ -68,6 +68,33 @@ button {
   padding: 0;
 }
 
+.progress-summary {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.progress-summary > div {
+  align-items: center;
+  border: 1px solid rgba(247, 248, 244, 0.14);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: auto 1fr auto;
+  padding: 10px 12px;
+}
+
+.progress-summary span {
+  color: #b9c4bb;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.progress-summary strong {
+  font-size: 1.15rem;
+}
+
 .progress-rail li {
   align-items: center;
   border: 1px solid rgba(247, 248, 244, 0.14);
@@ -202,6 +229,14 @@ video {
     color 160ms ease;
 }
 
+.rail-action {
+  background: rgba(247, 248, 244, 0.08);
+  border-color: rgba(247, 248, 244, 0.18);
+  color: #f7f8f4;
+  margin-top: 16px;
+  width: 100%;
+}
+
 .option-button {
   background: #eef2ea;
   border-radius: 8px;
@@ -324,6 +359,13 @@ video {
   color: #923224;
   font-weight: 700;
   margin-top: 0;
+}
+
+.answer-panel .error-text,
+.finish-state .error-text {
+  color: #923224;
+  font-weight: 700;
+  margin: 0;
 }
 
 @media (max-width: 980px) {

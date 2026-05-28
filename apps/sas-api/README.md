@@ -25,6 +25,7 @@ COSMOS_CONNECTION_STRING=AccountEndpoint=https://volleyball-tutor-dev-cosmos-db.
 COSMOS_DATABASE_NAME=lessons
 COSMOS_CONTAINER_NAME=lessonClips
 COSMOS_USER_PROFILES_CONTAINER_NAME=userProfiles
+COSMOS_PLAYER_PROGRESS_CONTAINER_NAME=playerProgress
 WEBSITES_PORT=8080
 ```
 
@@ -80,6 +81,13 @@ Container: userProfiles
 Partition key: /userId
 ```
 
+Create a third container for cross-device progress:
+
+```text
+Container: playerProgress
+Partition key: /userId
+```
+
 The API creates a default free profile the first time an authenticated user calls
 `GET /api/me` or a premium-gated endpoint:
 
@@ -108,6 +116,14 @@ document in Cosmos DB:
 
 Premium access is enforced for `GET /api/lessons` and `GET /api/video-url/:blobName`
 when `REQUIRE_PREMIUM_ACCESS=true`. Admin users are also allowed.
+
+Progress endpoints are also premium-gated:
+
+```text
+GET /api/progress
+POST /api/progress/answers
+POST /api/progress/reset
+```
 
 For local development, `DefaultAzureCredential` can use Azure CLI credentials after:
 

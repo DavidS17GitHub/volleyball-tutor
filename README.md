@@ -115,10 +115,11 @@ VITE_AUTH_API_SCOPE=api://6076bb3f-3e1f-4222-954a-801d86ab6f2e/access_as_user
 ```
 
 For cross-device progress and premium access, use the same Cosmos DB database with a
-second container named `userProfiles` using partition key `/userId`. The backend can
-validate Entra External ID/B2C JWTs with `AUTH_REQUIRED=true` and can block non-premium
-users from lessons with `REQUIRE_PREMIUM_ACCESS=true`. User profiles can start as
-manual Cosmos DB records until the app has an admin UI or billing integration.
+container named `userProfiles` and another named `playerProgress`, both using
+partition key `/userId`. The backend can validate Entra External ID/B2C JWTs with
+`AUTH_REQUIRED=true` and can block non-premium users from lessons with
+`REQUIRE_PREMIUM_ACCESS=true`. User profiles can start as manual Cosmos DB records
+until the app has an admin UI or billing integration.
 
 ## Private video access
 

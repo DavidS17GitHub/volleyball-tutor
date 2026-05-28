@@ -14,6 +14,7 @@ interface AnswerPanelProps {
   onAnswer: (answer: SetOption) => void;
   onContinue: () => void;
   isLastClip: boolean;
+  progressError?: string | null;
 }
 
 export function AnswerPanel({
@@ -22,6 +23,7 @@ export function AnswerPanel({
   onAnswer,
   onContinue,
   isLastClip,
+  progressError,
 }: AnswerPanelProps) {
   return (
     <section className="answer-panel" aria-live="polite">
@@ -65,6 +67,8 @@ export function AnswerPanel({
           </div>
         </div>
       )}
+
+      {progressError ? <p className="error-text">{progressError}</p> : null}
 
       <button
         className="primary-action"

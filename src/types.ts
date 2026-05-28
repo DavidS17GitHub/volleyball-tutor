@@ -15,3 +15,21 @@ export interface AnswerState {
   selected: SetOption;
   isCorrect: boolean;
 }
+
+export interface LessonProgressStats {
+  attempts: number;
+  correct: number;
+  lastAnsweredAt?: string;
+}
+
+export interface PlayerProgress {
+  id: string;
+  userId: string;
+  totalAttempts: number;
+  totalCorrect: number;
+  currentStreak: number;
+  bestStreak: number;
+  lessonStats: Record<string, LessonProgressStats>;
+  createdAt: string;
+  updatedAt: string;
+}

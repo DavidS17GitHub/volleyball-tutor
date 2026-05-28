@@ -24,3 +24,27 @@ export interface UserProfile {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface LessonProgressStats {
+  attempts: number;
+  correct: number;
+  lastAnsweredAt?: string;
+}
+
+export interface PlayerProgress {
+  id: string;
+  userId: string;
+  totalAttempts: number;
+  totalCorrect: number;
+  currentStreak: number;
+  bestStreak: number;
+  lessonStats: Record<string, LessonProgressStats>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProgressAnswerInput {
+  lessonId: string;
+  selectedAnswer: SetOption;
+  isCorrect: boolean;
+}

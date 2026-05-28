@@ -58,6 +58,7 @@ export const config = {
   cosmosDatabaseName: process.env.COSMOS_DATABASE_NAME ?? "lessons",
   cosmosContainerName: process.env.COSMOS_CONTAINER_NAME ?? "lessonClips",
   cosmosUserProfilesContainerName: process.env.COSMOS_USER_PROFILES_CONTAINER_NAME ?? "userProfiles",
+  cosmosPlayerProgressContainerName: process.env.COSMOS_PLAYER_PROGRESS_CONTAINER_NAME ?? "playerProgress",
   authRequired,
   authJwksUri: optionalRequired(authRequired, "AUTH_JWKS_URI"),
   authIssuer: optionalRequired(authRequired, "AUTH_ISSUER"),
