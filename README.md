@@ -110,6 +110,10 @@ repository includes a separate backend scaffold in `apps/sas-api` that can be de
 as another Azure Web App. It uses managed identity to generate short-lived read-only
 SAS URLs for private blobs.
 
+The backend Web App managed identity needs a blob data-plane role such as Storage Blob
+Data Contributor on the storage account or container. Management-plane roles like Owner
+do not grant the blob read permission needed by a user delegation SAS.
+
 After deploying that API, set the frontend build variable:
 
 ```bash

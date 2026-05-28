@@ -37,8 +37,9 @@ az login
 ## Managed Identity
 
 Enable system-assigned managed identity on this API Web App and grant it Storage Blob
-Data Contributor at the storage account or container scope. This role is needed to read
-blob data and create user delegation SAS tokens.
+Data Contributor at the storage account or container scope. Management-plane roles
+such as Owner are not enough: user delegation SAS permissions are limited by the blob
+data-plane permissions granted to the identity.
 
 ## Docker
 
