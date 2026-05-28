@@ -1,8 +1,10 @@
 import cors from "cors";
 import express from "express";
+import { attachAuthenticatedUser, requireAuthenticatedUser } from "./auth.js";
 import { createReadOnlyBlobUrl } from "./blobSas.js";
 import { config } from "./config.js";
 import { loadLessonClips, loadLessonClipsFromCosmos } from "./lessonStore.js";
+import { getOrCreateUserProfile, hasPremiumAccess } from "./userProfileStore.js";
 
 const app = express();
 
@@ -11,12 +13,80 @@ app.use(
     origin: config.corsOrigins.includes("*") ? true : config.corsOrigins,
   }),
 );
+app.use(express.json());
+app.use(attachAuthenticatedUser);
+
+const requirePremiumUser: express.RequestHandler = async (request, response, next) => {
+  if (!config.requirePremiumAccess) {
+    next();
+    return;
+  }
+
+  if (!request.user) {
+    response.status(401).json({ error: "Authentication is required" });
+    return;
+  }
+
+  try {
+    const profile = await getOrCreateUserProfile({
+      userId: request.user.id,
+      email: request.user.email,
+      displayName: request.user.displayName,
+    });
+
+    if (!hasPremiumAccess(profile)) {
+      response.status(403).json({
+        error: "Premium access is required",
+        role: profile.role,
+        planStatus: profile.planStatus,
+      });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 app.get("/health", (_request, response) => {
   response.json({ status: "ok" });
 });
 
-app.get("/api/lessons", async (_request, response, next) => {
+app.get("/api/me", requireAuthenticatedUser, async (request, response, next) => {
+  if (!config.authRequired) {
+    response.json({ authRequired: false });
+    return;
+  }
+
+  if (!request.user) {
+    response.status(401).json({ error: "Authentication is required" });
+    return;
+  }
+
+  try {
+    const profile = await getOrCreateUserProfile({
+      userId: request.user.id,
+      email: request.user.email,
+      displayName: request.user.displayName,
+    });
+
+    response.setHeader("Cache-Control", "no-store");
+    response.json({
+      user: {
+        id: request.user.id,
+        email: request.user.email,
+        displayName: request.user.displayName,
+      },
+      profile,
+      hasPremiumAccess: hasPremiumAccess(profile),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/lessons", requirePremiumUser, async (_request, response, next) => {
   try {
     const lessons = await (async () => {
       if (config.lessonStore === "file") {
@@ -54,9 +124,16 @@ app.get("/api/lessons", async (_request, response, next) => {
   }
 });
 
-app.get("/api/video-url/:blobName", async (request, response, next) => {
+app.get("/api/video-url/:blobName", requirePremiumUser, async (request, response, next) => {
   try {
-    const videoUrl = await createReadOnlyBlobUrl(request.params.blobName);
+    const { blobName } = request.params;
+
+    if (typeof blobName !== "string") {
+      response.status(400).json({ error: "Blob name is required" });
+      return;
+    }
+
+    const videoUrl = await createReadOnlyBlobUrl(blobName);
     response.setHeader("Cache-Control", "no-store");
     response.json({ videoUrl });
   } catch (error) {

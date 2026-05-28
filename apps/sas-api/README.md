@@ -24,6 +24,7 @@ LESSON_STORE=cosmos
 COSMOS_CONNECTION_STRING=AccountEndpoint=https://volleyball-tutor-dev-cosmos-db.documents.azure.com:443/;AccountKey=...
 COSMOS_DATABASE_NAME=lessons
 COSMOS_CONTAINER_NAME=lessonClips
+COSMOS_USER_PROFILES_CONTAINER_NAME=userProfiles
 WEBSITES_PORT=8080
 ```
 
@@ -32,6 +33,11 @@ Recommended:
 ```bash
 SAS_TTL_MINUTES=15
 CORS_ORIGINS=https://your-frontend-web-app.azurewebsites.net
+AUTH_REQUIRED=true
+AUTH_JWKS_URI=https://your-tenant.ciamlogin.com/your-tenant.onmicrosoft.com/discovery/v2.0/keys
+AUTH_ISSUER=https://your-tenant.ciamlogin.com/your-tenant-id/v2.0/
+AUTH_AUDIENCE=your-api-client-id
+REQUIRE_PREMIUM_ACCESS=true
 ```
 
 If the frontend is hosted separately, set its metadata URL to this backend:
@@ -66,6 +72,42 @@ Store each lesson as one document:
 `isPublished` and `sortOrder` are optional. Documents are returned when
 `isPublished` is missing or `true`, then sorted by `sortOrder` in the API. The public
 response omits `isPublished` and `sortOrder`.
+
+Create a second container in the same database for user profiles:
+
+```text
+Container: userProfiles
+Partition key: /userId
+```
+
+The API creates a default free profile the first time an authenticated user calls
+`GET /api/me` or a premium-gated endpoint:
+
+```json
+{
+  "id": "auth-user-id",
+  "userId": "auth-user-id",
+  "email": "player@example.com",
+  "displayName": "Player Name",
+  "role": "free",
+  "planStatus": "inactive",
+  "createdAt": "2026-05-28T16:00:00.000Z",
+  "updatedAt": "2026-05-28T16:00:00.000Z"
+}
+```
+
+Until there is an admin UI or billing integration, grant access by editing the profile
+document in Cosmos DB:
+
+```json
+{
+  "role": "premium",
+  "planStatus": "active"
+}
+```
+
+Premium access is enforced for `GET /api/lessons` and `GET /api/video-url/:blobName`
+when `REQUIRE_PREMIUM_ACCESS=true`. Admin users are also allowed.
 
 For local development, `DefaultAzureCredential` can use Azure CLI credentials after:
 

@@ -105,6 +105,12 @@ and `COSMOS_CONTAINER_NAME=lessonClips`, then point the frontend at:
 VITE_LESSONS_METADATA_URL=https://volleyball-tutor-dev-backend-cwakevadfqdpbxhv.eastus2-01.azurewebsites.net/api/lessons
 ```
 
+For cross-device progress and premium access, use the same Cosmos DB database with a
+second container named `userProfiles` using partition key `/userId`. The backend can
+validate Entra External ID/B2C JWTs with `AUTH_REQUIRED=true` and can block non-premium
+users from lessons with `REQUIRE_PREMIUM_ACCESS=true`. User profiles can start as
+manual Cosmos DB records until the app has an admin UI or billing integration.
+
 ## Private video access
 
 The static frontend cannot securely access a private Storage Account by itself. The
