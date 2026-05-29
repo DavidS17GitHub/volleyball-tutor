@@ -46,6 +46,50 @@ button {
   font-weight: 800;
 }
 
+.locale-toggle {
+  align-items: center;
+  background: #eef2ea;
+  border: 1px solid #dfe5db;
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+}
+
+.locale-toggle button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #5f6d63;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 900;
+  min-height: 28px;
+  min-width: 38px;
+  padding: 4px 8px;
+}
+
+.locale-toggle button.selected {
+  background: #ffffff;
+  color: #17221b;
+  box-shadow: 0 4px 12px rgba(16, 23, 20, 0.08);
+}
+
+.progress-rail .locale-toggle {
+  background: rgba(247, 248, 244, 0.08);
+  border-color: rgba(247, 248, 244, 0.18);
+  margin-bottom: 20px;
+}
+
+.progress-rail .locale-toggle button {
+  color: #b9c4bb;
+}
+
+.progress-rail .locale-toggle button.selected {
+  background: #f7f8f4;
+  color: #101714;
+}
+
 .progress-rail {
   background: #101714;
   color: #f7f8f4;

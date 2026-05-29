@@ -19,12 +19,15 @@ const isLessonClip = (value: unknown): value is LessonDocument => {
   return (
     typeof candidate.id === "string" &&
     typeof candidate.title === "string" &&
+    (candidate.titleEs === undefined || typeof candidate.titleEs === "string") &&
     typeof candidate.skillFocus === "string" &&
+    (candidate.skillFocusEs === undefined || typeof candidate.skillFocusEs === "string") &&
     typeof candidate.pauseAtSeconds === "number" &&
     Number.isFinite(candidate.pauseAtSeconds) &&
     typeof candidate.correctAnswer === "string" &&
     setOptions.includes(candidate.correctAnswer) &&
     typeof candidate.explanation === "string" &&
+    (candidate.explanationEs === undefined || typeof candidate.explanationEs === "string") &&
     (typeof candidate.videoUrl === "string" ||
       typeof candidate.videoPath === "string") &&
     (candidate.isPublished === undefined || typeof candidate.isPublished === "boolean") &&
@@ -36,12 +39,15 @@ const isLessonClip = (value: unknown): value is LessonDocument => {
 const toPublicLessonClip = (lesson: LessonDocument): LessonClip => ({
   id: lesson.id,
   title: lesson.title,
+  titleEs: lesson.titleEs,
   skillFocus: lesson.skillFocus,
+  skillFocusEs: lesson.skillFocusEs,
   videoUrl: lesson.videoUrl,
   videoPath: lesson.videoPath,
   pauseAtSeconds: lesson.pauseAtSeconds,
   correctAnswer: lesson.correctAnswer,
   explanation: lesson.explanation,
+  explanationEs: lesson.explanationEs,
 });
 
 export async function loadLessonClips(filePath: string): Promise<LessonClip[]> {

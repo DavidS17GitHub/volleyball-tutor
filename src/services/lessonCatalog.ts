@@ -13,12 +13,15 @@ const isLessonClip = (value: unknown): value is LessonClip => {
   return (
     typeof candidate.id === "string" &&
     typeof candidate.title === "string" &&
+    (candidate.titleEs === undefined || typeof candidate.titleEs === "string") &&
     typeof candidate.skillFocus === "string" &&
+    (candidate.skillFocusEs === undefined || typeof candidate.skillFocusEs === "string") &&
     typeof candidate.pauseAtSeconds === "number" &&
     Number.isFinite(candidate.pauseAtSeconds) &&
     typeof candidate.correctAnswer === "string" &&
     setOptions.includes(candidate.correctAnswer) &&
     typeof candidate.explanation === "string" &&
+    (candidate.explanationEs === undefined || typeof candidate.explanationEs === "string") &&
     (typeof candidate.videoUrl === "string" ||
       typeof candidate.videoPath === "string")
   );

@@ -1,5 +1,7 @@
 import { ChartLine, RotateCcw, Target } from "lucide-react";
+import { getLocalizedLessonText, useI18n } from "../i18n";
 import type { LessonClip, PlayerProgress } from "../types";
+import { LocaleToggle } from "./LocaleToggle";
 
 interface ProgressRailProps {
   clips: LessonClip[];
@@ -27,30 +29,34 @@ export function ProgressRail({
   onResetProgress,
   onViewSessionProgress,
 }: ProgressRailProps) {
+  const { locale, t } = useI18n();
   const currentClip = clips[currentIndex];
 
   if (!currentClip) {
     return null;
   }
 
+  const currentClipText = getLocalizedLessonText(currentClip, locale);
+
   return (
-    <aside className="progress-rail" aria-label="Lesson clips">
-      <p className="eyebrow">Lesson</p>
-      <h2>Set selection reads</h2>
+    <aside className="progress-rail" aria-label={t("lesson")}>
+      <LocaleToggle />
+      <p className="eyebrow">{t("lesson")}</p>
+      <h2>{t("setSelectionReads")}</h2>
       <div className="progress-summary">
         <div>
           <Target size={18} />
-          <span>Accuracy</span>
+          <span>{t("accuracy")}</span>
           <strong>
             {formatPercent(sessionStats.correct, sessionStats.attempts)}
           </strong>
         </div>
         <div>
-          <span>Attempts</span>
+          <span>{t("attempts")}</span>
           <strong>{sessionStats.attempts}</strong>
         </div>
         <div>
-          <span>Best streak</span>
+          <span>{t("bestStreak")}</span>
           <strong>{sessionStats.bestStreak}</strong>
         </div>
       </div>
@@ -64,12 +70,12 @@ export function ProgressRail({
         >
           <span>{currentIndex + 1}</span>
           <div>
-            <strong>{currentClip.title}</strong>
-            <small>{currentClip.skillFocus}</small>
+            <strong>{currentClipText.title}</strong>
+            <small>{currentClipText.skillFocus}</small>
             {playerProgress?.lessonStats[currentClip.id] ? (
               <small>
                 {playerProgress.lessonStats[currentClip.id].correct}/
-                {playerProgress.lessonStats[currentClip.id].attempts} correct
+                {playerProgress.lessonStats[currentClip.id].attempts} {t("correct")}
               </small>
             ) : null}
           </div>
@@ -77,11 +83,11 @@ export function ProgressRail({
       </ol>
       <button className="text-action rail-action" onClick={onResetProgress} type="button">
         <RotateCcw size={16} />
-        Reset progress
+        {t("resetProgress")}
       </button>
       <button className="text-action rail-action" onClick={onViewSessionProgress} type="button">
         <ChartLine size={16} />
-        View chart
+        {t("viewChart")}
       </button>
     </aside>
   );

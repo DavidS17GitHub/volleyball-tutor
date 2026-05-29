@@ -1,8 +1,10 @@
 import { ChartLine, Play, RotateCcw, Trophy, Video } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { LocaleToggle } from "./components/LocaleToggle";
 import { ProgressRail } from "./components/ProgressRail";
 import { SessionProgressModal } from "./components/SessionProgressModal";
 import { VideoQuizPlayer } from "./components/VideoQuizPlayer";
+import { useI18n } from "./i18n";
 import { loadLessonClips } from "./services/lessonCatalog";
 import {
   loadPlayerProgress,
@@ -35,6 +37,7 @@ const buildRandomSession = (clips: LessonClip[], requestedSize: number) => {
 };
 
 export function App({ getAccessToken }: AppProps) {
+  const { t } = useI18n();
   const [availableClips, setAvailableClips] = useState<LessonClip[]>([]);
   const [sessionClips, setSessionClips] = useState<LessonClip[]>([]);
   const [sessionSize, setSessionSize] = useState<(typeof sessionSizeOptions)[number]>(10);
@@ -218,8 +221,8 @@ export function App({ getAccessToken }: AppProps) {
   if (isLoading) {
     return (
       <main className="center-state">
-        <p className="eyebrow">Loading</p>
-        <h1>Preparing lesson clips</h1>
+        <p className="eyebrow">{t("loading")}</p>
+        <h1>{t("preparingLessonClips")}</h1>
       </main>
     );
   }
@@ -227,9 +230,9 @@ export function App({ getAccessToken }: AppProps) {
   if (loadError || availableClips.length === 0) {
     return (
       <main className="center-state">
-        <p className="eyebrow">Metadata issue</p>
-        <h1>Lessons are unavailable</h1>
-        <p>{loadError ?? "No lesson clips were found."}</p>
+        <p className="eyebrow">{t("metadataIssue")}</p>
+        <h1>{t("lessonsUnavailable")}</h1>
+        <p>{loadError ?? t("noLessonClipsFound")}</p>
       </main>
     );
   }
@@ -237,10 +240,11 @@ export function App({ getAccessToken }: AppProps) {
   if (!hasStartedSession) {
     return (
       <main className="center-state session-start">
+        <LocaleToggle />
         <Video size={44} />
-        <p className="eyebrow">Training session</p>
-        <h1>Set selection reads</h1>
-        <div className="session-options" aria-label="Session video count">
+        <p className="eyebrow">{t("trainingSession")}</p>
+        <h1>{t("setSelectionReads")}</h1>
+        <div className="session-options" aria-label={t("sessionVideoCount")}>
           {sessionSizeOptions.map((option) => (
             <button
               aria-pressed={sessionSize === option}
@@ -253,13 +257,13 @@ export function App({ getAccessToken }: AppProps) {
               type="button"
             >
               <span>{option}</span>
-              videos
+              {t("videoCountLabel")}
             </button>
           ))}
         </div>
         <button className="primary-action" onClick={handleStartSession} type="button">
           <Play size={18} />
-          Begin Session
+          {t("beginSession")}
         </button>
         <button
           className="text-action"
@@ -267,7 +271,7 @@ export function App({ getAccessToken }: AppProps) {
           type="button"
         >
           <ChartLine size={16} />
-          View progress chart
+          {t("viewProgressChart")}
         </button>
         {progressError ? <p className="error-text">{progressError}</p> : null}
         {isProgressModalOpen ? (
@@ -295,20 +299,18 @@ export function App({ getAccessToken }: AppProps) {
 
       {isFinished ? (
         <main className="finish-state">
+          <LocaleToggle />
           <Trophy size={44} />
-          <p className="eyebrow">Lesson complete</p>
-          <h1>{sessionStats.correct} correct reads</h1>
-          <p>
-            The MVP flow is ready for real volleyball clips: upload videos to Azure,
-            set each pause timestamp, and tune the feedback for your coaching model.
-          </p>
+          <p className="eyebrow">{t("lessonComplete")}</p>
+          <h1>{t("sessionCorrectReads", { count: sessionStats.correct })}</h1>
+          <p>{t("sessionCompleteMessage")}</p>
           {progressError ? <p className="error-text">{progressError}</p> : null}
           <button className="primary-action" onClick={handleRestart} type="button">
-            Restart session
+            {t("restartSession")}
           </button>
           <button className="text-action" onClick={handleStartSession} type="button">
             <Play size={16} />
-            New random session
+            {t("newRandomSession")}
           </button>
           <button
             className="text-action"
@@ -316,11 +318,11 @@ export function App({ getAccessToken }: AppProps) {
             type="button"
           >
             <ChartLine size={16} />
-            View progress chart
+            {t("viewProgressChart")}
           </button>
           <button className="text-action" onClick={handleResetProgress} type="button">
             <RotateCcw size={16} />
-            Reset progress
+            {t("resetProgress")}
           </button>
         </main>
       ) : (
