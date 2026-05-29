@@ -18,6 +18,7 @@ const translations = {
     correctRead: "Correct read",
     currentClip: "Current clip",
     decisionPoint: "Decision point",
+    decisionTimer: "Waiting {seconds}s",
     finishLesson: "Finish lesson",
     finishSessionToAddPoint: "Finish a training session to add the first accuracy point.",
     lesson: "Lesson",
@@ -58,6 +59,7 @@ const translations = {
     videos: "Videos",
     viewChart: "View chart",
     viewProgressChart: "View progress chart",
+    waitingForAnswer: "Waiting for your answer",
     whatSetShouldSetterChoose: "What set should the setter choose?",
   },
   es: {
@@ -72,6 +74,7 @@ const translations = {
     correctRead: "Lectura correcta",
     currentClip: "Video actual",
     decisionPoint: "Punto de decisión",
+    decisionTimer: "Esperando {seconds}s",
     finishLesson: "Terminar sesión",
     finishSessionToAddPoint:
       "Termina una sesión de entrenamiento para agregar el primer punto de precisión.",
@@ -113,6 +116,7 @@ const translations = {
     videos: "Videos",
     viewChart: "Ver gráfico",
     viewProgressChart: "Ver gráfico de progreso",
+    waitingForAnswer: "Esperando tu respuesta",
     whatSetShouldSetterChoose: "¿Qué pase debería elegir el armador?",
   },
 } as const;
