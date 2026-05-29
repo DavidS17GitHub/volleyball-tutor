@@ -1,4 +1,5 @@
 import { RotateCcw, X } from "lucide-react";
+import { useI18n } from "../i18n";
 import type { SessionProgressPoint } from "../types";
 
 interface SessionProgressModalProps {
@@ -16,8 +17,8 @@ const chartPadding = {
   top: 30,
 };
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat(undefined, {
+const formatDate = (value: string, locale: string) =>
+  new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -45,6 +46,7 @@ export function SessionProgressModal({
   onClose,
   onReset,
 }: SessionProgressModalProps) {
+  const { locale, t } = useI18n();
   const chartPoints = buildChartPoints(points);
   const polylinePoints = chartPoints.map((point) => `${point.x},${point.y}`).join(" ");
   const yTicks = [100, 75, 50, 25, 0];
@@ -61,17 +63,17 @@ export function SessionProgressModal({
       >
         <div className="modal-heading">
           <div>
-            <p className="eyebrow">Session history</p>
-            <h2 id="session-progress-title">Progress Chart</h2>
+            <p className="eyebrow">{t("sessionHistory")}</p>
+            <h2 id="session-progress-title">{t("progressChart")}</h2>
           </div>
-          <button className="icon-button" onClick={onClose} type="button" aria-label="Close progress chart">
+          <button className="icon-button" onClick={onClose} type="button" aria-label={t("closeProgressChart")}>
             <X size={20} />
           </button>
         </div>
 
         {hasProgress ? (
           <>
-            <div className="chart-frame" aria-label="Session accuracy chart">
+            <div className="chart-frame" aria-label={t("progressChart")}>
               <svg
                 aria-hidden="true"
                 className="progress-chart"
@@ -118,7 +120,8 @@ export function SessionProgressModal({
                   <g key={point.id}>
                     <circle className="chart-point" cx={point.x} cy={point.y} r="5" />
                     <text className="chart-x-label" x={point.x} y={chartBottom + 28}>
-                      S{point.sessionNumber}
+                      {t("session").slice(0, 1)}
+                      {point.sessionNumber}
                     </text>
                   </g>
                 ))}
@@ -129,21 +132,23 @@ export function SessionProgressModal({
               <table className="progress-table">
                 <thead>
                   <tr>
-                    <th>Session</th>
-                    <th>Accuracy</th>
-                    <th>Correct</th>
-                    <th>Videos</th>
-                    <th>Completed</th>
+                    <th>{t("session")}</th>
+                    <th>{t("accuracy")}</th>
+                    <th>{t("correct")}</th>
+                    <th>{t("videos")}</th>
+                    <th>{t("completed")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {points.map((point) => (
                     <tr key={point.id}>
-                      <td>Session {point.sessionNumber}</td>
+                      <td>
+                        {t("session")} {point.sessionNumber}
+                      </td>
                       <td>{point.accuracy}%</td>
                       <td>{point.correctCount}</td>
                       <td>{point.videoCount}</td>
-                      <td>{formatDate(point.completedAt)}</td>
+                      <td>{formatDate(point.completedAt, locale)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -152,8 +157,8 @@ export function SessionProgressModal({
           </>
         ) : (
           <div className="empty-chart-state">
-            <h3>No session data yet</h3>
-            <p>Finish a training session to add the first accuracy point.</p>
+            <h3>{t("noSessionDataYet")}</h3>
+            <p>{t("finishSessionToAddPoint")}</p>
           </div>
         )}
 
@@ -165,7 +170,7 @@ export function SessionProgressModal({
             type="button"
           >
             <RotateCcw size={16} />
-            Reset chart
+            {t("resetChart")}
           </button>
         </div>
       </section>

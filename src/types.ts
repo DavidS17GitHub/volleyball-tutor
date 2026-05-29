@@ -3,12 +3,15 @@ export type SetOption = "outside" | "pipe" | "center" | "opposite";
 export interface LessonClip {
   id: string;
   title: string;
+  titleEs?: string;
   skillFocus: string;
+  skillFocusEs?: string;
   videoUrl?: string;
   videoPath?: string;
   pauseAtSeconds: number;
   correctAnswer: SetOption;
   explanation: string;
+  explanationEs?: string;
 }
 
 export interface AnswerState {

@@ -1,12 +1,8 @@
 import { CheckCircle2, XCircle } from "lucide-react";
+import { getLocalizedLessonText, useI18n, useSetOptionLabel } from "../i18n";
 import type { AnswerState, LessonClip, SetOption } from "../types";
 
-const options: Array<{ value: SetOption; label: string }> = [
-  { value: "outside", label: "Outside" },
-  { value: "pipe", label: "Pipe" },
-  { value: "center", label: "Center" },
-  { value: "opposite", label: "Opposite" },
-];
+const options: SetOption[] = ["outside", "pipe", "center", "opposite"];
 
 interface AnswerPanelProps {
   clip: LessonClip;
@@ -25,17 +21,21 @@ export function AnswerPanel({
   isLastClip,
   progressError,
 }: AnswerPanelProps) {
+  const { locale, t } = useI18n();
+  const getSetOptionLabel = useSetOptionLabel();
+  const clipText = getLocalizedLessonText(clip, locale);
+
   return (
     <section className="answer-panel" aria-live="polite">
       <div>
-        <p className="eyebrow">Decision point</p>
-        <h2>What set should the setter choose?</h2>
+        <p className="eyebrow">{t("decisionPoint")}</p>
+        <h2>{t("whatSetShouldSetterChoose")}</h2>
       </div>
 
       <div className="option-grid">
         {options.map((option) => {
-          const isSelected = answer?.selected === option.value;
-          const isCorrect = clip.correctAnswer === option.value;
+          const isSelected = answer?.selected === option;
+          const isCorrect = clip.correctAnswer === option;
           const resultClass = answer
             ? isCorrect
               ? "correct"
@@ -48,11 +48,11 @@ export function AnswerPanel({
             <button
               className={`option-button ${resultClass}`}
               disabled={Boolean(answer)}
-              key={option.value}
-              onClick={() => onAnswer(option.value)}
+              key={option}
+              onClick={() => onAnswer(option)}
               type="button"
             >
-              {option.label}
+              {getSetOptionLabel(option)}
             </button>
           );
         })}
@@ -62,8 +62,8 @@ export function AnswerPanel({
         <div className={`feedback ${answer.isCorrect ? "correct" : "incorrect"}`}>
           {answer.isCorrect ? <CheckCircle2 size={22} /> : <XCircle size={22} />}
           <div>
-            <strong>{answer.isCorrect ? "Correct read" : "Not quite"}</strong>
-            <p>{clip.explanation}</p>
+            <strong>{answer.isCorrect ? t("correctRead") : t("notQuite")}</strong>
+            <p>{clipText.explanation}</p>
           </div>
         </div>
       )}
@@ -76,7 +76,7 @@ export function AnswerPanel({
         onClick={onContinue}
         type="button"
       >
-        {isLastClip ? "Finish lesson" : "Next clip"}
+        {isLastClip ? t("finishLesson") : t("nextClip")}
       </button>
     </section>
   );

@@ -4,6 +4,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { App } from "./App";
 import { AuthenticatedApp } from "./AuthenticatedApp";
 import { createMsalInstance, getAuthRuntimeConfig } from "./authConfig";
+import { I18nProvider } from "./i18n";
 import "./styles.css";
 
 async function startApp() {
@@ -13,7 +14,9 @@ async function startApp() {
   if (!auth) {
     root.render(
       <React.StrictMode>
-        <App />
+        <I18nProvider>
+          <App />
+        </I18nProvider>
       </React.StrictMode>,
     );
     return;
@@ -24,9 +27,11 @@ async function startApp() {
 
   root.render(
     <React.StrictMode>
-      <MsalProvider instance={msalInstance}>
-        <AuthenticatedApp auth={auth} />
-      </MsalProvider>
+      <I18nProvider>
+        <MsalProvider instance={msalInstance}>
+          <AuthenticatedApp auth={auth} />
+        </MsalProvider>
+      </I18nProvider>
     </React.StrictMode>,
   );
 }

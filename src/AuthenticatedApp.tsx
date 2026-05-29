@@ -4,12 +4,15 @@ import { LogIn, LogOut } from "lucide-react";
 import { useMemo, useState } from "react";
 import { App } from "./App";
 import type { AuthRuntimeConfig } from "./authConfig";
+import { LocaleToggle } from "./components/LocaleToggle";
+import { useI18n } from "./i18n";
 
 interface AuthenticatedAppProps {
   auth: AuthRuntimeConfig;
 }
 
 export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
+  const { t } = useI18n();
   const { accounts, instance } = useMsal();
   const [authError, setAuthError] = useState<string | null>(null);
   const account = accounts[0];
@@ -63,13 +66,14 @@ export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
   if (!account) {
     return (
       <main className="center-state">
-        <p className="eyebrow">Premium access</p>
-        <h1>Sign in to start training</h1>
-        <p>Your progress and lesson access are tied to your account.</p>
+        <LocaleToggle />
+        <p className="eyebrow">{t("premiumAccess")}</p>
+        <h1>{t("signInToStartTraining")}</h1>
+        <p>{t("userProgressAccount")}</p>
         {authError ? <p className="error-text">{authError}</p> : null}
         <button className="primary-action action-with-icon" onClick={handleSignIn} type="button">
           <LogIn size={18} />
-          Sign in
+          {t("signIn")}
         </button>
       </main>
     );
@@ -78,10 +82,11 @@ export function AuthenticatedApp({ auth }: AuthenticatedAppProps) {
   return (
     <>
       <div className="account-bar">
+        <LocaleToggle />
         <span>{account.name ?? account.username}</span>
         <button className="text-action" onClick={handleSignOut} type="button">
           <LogOut size={16} />
-          Sign out
+          {t("signOut")}
         </button>
       </div>
       <App getAccessToken={getAccessToken} />

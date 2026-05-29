@@ -1,6 +1,7 @@
 import { Flag, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { resolveVideoUrl } from "../data/lessons";
+import { getLocalizedLessonText, useI18n } from "../i18n";
 import type { AnswerState, LessonClip, SetOption } from "../types";
 import { AnswerPanel } from "./AnswerPanel";
 
@@ -23,10 +24,12 @@ export function VideoQuizPlayer({
   onNext,
   progressError,
 }: VideoQuizPlayerProps) {
+  const { locale, t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasPausedForQuestion, setHasPausedForQuestion] = useState(false);
   const [answer, setAnswer] = useState<AnswerState | null>(null);
   const videoUrl = useMemo(() => resolveVideoUrl(clip), [clip]);
+  const clipText = getLocalizedLessonText(clip, locale);
 
   useEffect(() => {
     setAnswer(null);
@@ -83,10 +86,10 @@ export function VideoQuizPlayer({
       <section className="video-stage">
         <div className="video-heading">
           <div>
-            <p className="eyebrow">Current clip</p>
-            <h1>{clip.title}</h1>
+            <p className="eyebrow">{t("currentClip")}</p>
+            <h1>{clipText.title}</h1>
           </div>
-          <button className="icon-button" onClick={handleReplay} type="button" aria-label="Replay clip">
+          <button className="icon-button" onClick={handleReplay} type="button" aria-label={t("replayClip")}>
             <RotateCcw size={20} />
           </button>
         </div>
@@ -100,11 +103,11 @@ export function VideoQuizPlayer({
         />
 
         <div className="clip-meta">
-          <span>Pause at {clip.pauseAtSeconds.toFixed(1)}s</span>
-          <span>{clip.skillFocus}</span>
+          <span>{t("pauseAt", { seconds: clip.pauseAtSeconds.toFixed(1) })}</span>
+          <span>{clipText.skillFocus}</span>
           <button className="text-action" onClick={handleShowDecision} type="button">
             <Flag size={16} />
-            Show decision
+            {t("showDecision")}
           </button>
         </div>
       </section>
