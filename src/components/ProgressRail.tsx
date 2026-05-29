@@ -6,6 +6,11 @@ interface ProgressRailProps {
   currentIndex: number;
   completedIds: string[];
   playerProgress: PlayerProgress | null;
+  sessionStats: {
+    attempts: number;
+    bestStreak: number;
+    correct: number;
+  };
   onResetProgress: () => void;
   onViewSessionProgress: () => void;
 }
@@ -18,6 +23,7 @@ export function ProgressRail({
   currentIndex,
   completedIds,
   playerProgress,
+  sessionStats,
   onResetProgress,
   onViewSessionProgress,
 }: ProgressRailProps) {
@@ -36,19 +42,16 @@ export function ProgressRail({
           <Target size={18} />
           <span>Accuracy</span>
           <strong>
-            {formatPercent(
-              playerProgress?.totalCorrect ?? 0,
-              playerProgress?.totalAttempts ?? 0,
-            )}
+            {formatPercent(sessionStats.correct, sessionStats.attempts)}
           </strong>
         </div>
         <div>
           <span>Attempts</span>
-          <strong>{playerProgress?.totalAttempts ?? 0}</strong>
+          <strong>{sessionStats.attempts}</strong>
         </div>
         <div>
           <span>Best streak</span>
-          <strong>{playerProgress?.bestStreak ?? 0}</strong>
+          <strong>{sessionStats.bestStreak}</strong>
         </div>
       </div>
       <ol>

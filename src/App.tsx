@@ -53,14 +53,33 @@ export function App({ getAccessToken }: AppProps) {
   const [playerProgress, setPlayerProgress] = useState<PlayerProgress | null>(null);
   const currentClip = sessionClips[currentIndex];
 
-  const score = useMemo(
-    () =>
-      completedIds.filter((clipId) => {
-        const stats = playerProgress?.lessonStats[clipId];
-        return stats && stats.correct > 0;
-      }).length,
-    [completedIds, playerProgress],
-  );
+  const sessionStats = useMemo(() => {
+    let bestStreak = 0;
+    let currentStreak = 0;
+    let attempts = 0;
+    let correct = 0;
+
+    sessionClips.forEach((clip) => {
+      const answer = sessionAnswers[clip.id];
+
+      if (typeof answer !== "boolean") {
+        return;
+      }
+
+      attempts += 1;
+
+      if (answer) {
+        correct += 1;
+        currentStreak += 1;
+        bestStreak = Math.max(bestStreak, currentStreak);
+        return;
+      }
+
+      currentStreak = 0;
+    });
+
+    return { attempts, bestStreak, correct };
+  }, [sessionAnswers, sessionClips]);
 
   useEffect(() => {
     let isActive = true;
@@ -138,9 +157,8 @@ export function App({ getAccessToken }: AppProps) {
 
   const handleNext = () => {
     if (currentIndex === sessionClips.length - 1) {
-      const correctCount = sessionClips.filter((clip) => sessionAnswers[clip.id]).length;
       const progressPoint = createSessionProgressPoint({
-        correctCount,
+        correctCount: sessionStats.correct,
         existingPoints: sessionProgress,
         videoCount: sessionClips.length,
       });
@@ -270,6 +288,7 @@ export function App({ getAccessToken }: AppProps) {
         completedIds={completedIds}
         currentIndex={currentIndex}
         playerProgress={playerProgress}
+        sessionStats={sessionStats}
         onResetProgress={handleResetProgress}
         onViewSessionProgress={() => setIsProgressModalOpen(true)}
       />
@@ -278,7 +297,7 @@ export function App({ getAccessToken }: AppProps) {
         <main className="finish-state">
           <Trophy size={44} />
           <p className="eyebrow">Lesson complete</p>
-          <h1>{score} correct reads</h1>
+          <h1>{sessionStats.correct} correct reads</h1>
           <p>
             The MVP flow is ready for real volleyball clips: upload videos to Azure,
             set each pause timestamp, and tune the feedback for your coaching model.
