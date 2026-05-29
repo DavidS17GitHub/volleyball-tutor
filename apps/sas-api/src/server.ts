@@ -9,6 +9,7 @@ import {
   recordProgressAnswer,
   resetPlayerProgress,
 } from "./playerProgressStore.js";
+import { loadUiTranslations } from "./translationStore.js";
 import { getOrCreateUserProfile, hasPremiumAccess } from "./userProfileStore.js";
 
 const app = express();
@@ -136,6 +137,16 @@ app.get("/api/lessons", requirePremiumUser, async (_request, response, next) => 
 
     response.setHeader("Cache-Control", "no-store");
     response.json(signedLessons);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/translations", async (_request, response, next) => {
+  try {
+    const translations = await loadUiTranslations();
+    response.setHeader("Cache-Control", "no-store");
+    response.json(translations);
   } catch (error) {
     next(error);
   }

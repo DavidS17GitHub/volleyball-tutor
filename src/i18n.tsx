@@ -1,7 +1,9 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { loadUiTranslations } from "./services/uiTranslations";
 import type { LessonClip, SetOption } from "./types";
 
 export type Locale = "en" | "es";
+export type RuntimeTranslations = Partial<Record<Locale, Record<string, string>>>;
 
 const defaultLocale: Locale = "en";
 
@@ -154,15 +156,37 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>(getInitialLocale);
+  const [runtimeTranslations, setRuntimeTranslations] = useState<RuntimeTranslations>({});
+
+  useEffect(() => {
+    let isActive = true;
+
+    loadUiTranslations()
+      .then((translations) => {
+        if (isActive) {
+          setRuntimeTranslations(translations);
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setRuntimeTranslations({});
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const value = useMemo<I18nContextValue>(
     () => ({
       locale,
       setLocale,
       supportedLocales,
-      t: (key, values) => interpolate(translations[locale][key], values),
+      t: (key, values) =>
+        interpolate(runtimeTranslations[locale]?.[key] ?? translations[locale][key], values),
     }),
-    [locale],
+    [locale, runtimeTranslations],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

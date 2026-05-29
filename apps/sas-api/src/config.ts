@@ -57,6 +57,7 @@ export const config = {
   cosmosConnectionString: needsCosmos ? required("COSMOS_CONNECTION_STRING") : undefined,
   cosmosDatabaseName: process.env.COSMOS_DATABASE_NAME ?? "lessons",
   cosmosContainerName: process.env.COSMOS_CONTAINER_NAME ?? "lessonClips",
+  cosmosUiTranslationsContainerName: process.env.COSMOS_UI_TRANSLATIONS_CONTAINER_NAME ?? "uiTranslations",
   cosmosUserProfilesContainerName: process.env.COSMOS_USER_PROFILES_CONTAINER_NAME ?? "userProfiles",
   cosmosPlayerProgressContainerName: process.env.COSMOS_PLAYER_PROGRESS_CONTAINER_NAME ?? "playerProgress",
   authRequired,
