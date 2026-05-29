@@ -28,13 +28,28 @@ export function VideoQuizPlayer({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasPausedForQuestion, setHasPausedForQuestion] = useState(false);
   const [answer, setAnswer] = useState<AnswerState | null>(null);
+  const [decisionElapsedSeconds, setDecisionElapsedSeconds] = useState(0);
   const videoUrl = useMemo(() => resolveVideoUrl(clip), [clip]);
   const clipText = getLocalizedLessonText(clip, locale);
 
   useEffect(() => {
     setAnswer(null);
     setHasPausedForQuestion(false);
+    setDecisionElapsedSeconds(0);
   }, [clip.id]);
+
+  useEffect(() => {
+    if (!hasPausedForQuestion || answer) {
+      return undefined;
+    }
+
+    setDecisionElapsedSeconds(0);
+    const timerId = window.setInterval(() => {
+      setDecisionElapsedSeconds((seconds) => seconds + 1);
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, [answer, hasPausedForQuestion]);
 
   const handleTimeUpdate = () => {
     const video = videoRef.current;
@@ -45,6 +60,7 @@ export function VideoQuizPlayer({
 
     video.pause();
     setHasPausedForQuestion(true);
+    setDecisionElapsedSeconds(0);
   };
 
   const handleAnswer = (selected: SetOption) => {
@@ -52,6 +68,7 @@ export function VideoQuizPlayer({
     const isCorrect = selected === clip.correctAnswer;
 
     setAnswer({ selected, isCorrect });
+    setDecisionElapsedSeconds(0);
     onComplete({ clipId: clip.id, selectedAnswer: selected, isCorrect });
 
     if (video) {
@@ -67,6 +84,7 @@ export function VideoQuizPlayer({
 
     setAnswer(null);
     setHasPausedForQuestion(false);
+    setDecisionElapsedSeconds(0);
     video.currentTime = 0;
     void video.play();
   };
@@ -79,6 +97,7 @@ export function VideoQuizPlayer({
     }
 
     setHasPausedForQuestion(true);
+    setDecisionElapsedSeconds(0);
   };
 
   return (
@@ -94,13 +113,22 @@ export function VideoQuizPlayer({
           </button>
         </div>
 
-        <video
-          controls
-          key={clip.id}
-          onTimeUpdate={handleTimeUpdate}
-          ref={videoRef}
-          src={videoUrl}
-        />
+        <div className="video-wrap">
+          <video
+            controls
+            key={clip.id}
+            onTimeUpdate={handleTimeUpdate}
+            playsInline
+            ref={videoRef}
+            src={videoUrl}
+          />
+          {hasPausedForQuestion && !answer ? (
+            <div className="decision-overlay" aria-live="polite">
+              <strong>{t("waitingForAnswer")}</strong>
+              <span>{t("decisionTimer", { seconds: decisionElapsedSeconds })}</span>
+            </div>
+          ) : null}
+        </div>
 
         <div className="clip-meta">
           <span>{t("pauseAt", { seconds: clip.pauseAtSeconds.toFixed(1) })}</span>

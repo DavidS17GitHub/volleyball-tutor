@@ -223,12 +223,43 @@ button {
   line-height: 1;
 }
 
-video {
+.video-wrap {
+  position: relative;
+}
+
+.video-wrap video {
   aspect-ratio: 16 / 9;
   background: #101714;
   border-radius: 8px;
   display: block;
   width: 100%;
+}
+
+.decision-overlay {
+  align-items: center;
+  background: rgba(16, 23, 20, 0.78);
+  border-radius: 8px;
+  color: #ffffff;
+  display: grid;
+  gap: 6px;
+  inset: 0;
+  justify-items: center;
+  padding: 20px;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+}
+
+.decision-overlay strong {
+  font-size: clamp(1.25rem, 3vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.decision-overlay span {
+  color: #e8c547;
+  font-size: 0.95rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .clip-meta {
