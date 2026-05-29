@@ -11,9 +11,18 @@ export interface LessonClip {
   explanation: string;
 }
 
-export interface AnswerState {
-  selected: SetOption;
-  isCorrect: boolean;
+export type UserRole = "free" | "premium" | "admin";
+export type PlanStatus = "inactive" | "active" | "trialing" | "past_due" | "canceled";
+
+export interface UserProfile {
+  id: string;
+  userId: string;
+  email?: string;
+  displayName?: string;
+  role: UserRole;
+  planStatus: PlanStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LessonProgressStats {
@@ -34,11 +43,8 @@ export interface PlayerProgress {
   updatedAt: string;
 }
 
-export interface SessionProgressPoint {
-  id: string;
-  sessionNumber: number;
-  completedAt: string;
-  videoCount: number;
-  correctCount: number;
-  accuracy: number;
+export interface ProgressAnswerInput {
+  lessonId: string;
+  selectedAnswer: SetOption;
+  isCorrect: boolean;
 }

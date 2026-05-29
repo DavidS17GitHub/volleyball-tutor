@@ -1,8 +1,10 @@
 import type { LessonClip } from "../types";
-
-const azureBaseUrl = import.meta.env.VITE_AZURE_VIDEO_BASE_URL;
+import { getRuntimeConfig } from "../runtimeConfig";
 
 export const resolveVideoUrl = (clip: LessonClip) => {
+  const azureBaseUrl =
+    getRuntimeConfig().azureVideoBaseUrl ?? import.meta.env.VITE_AZURE_VIDEO_BASE_URL;
+
   if (clip.videoUrl) {
     return clip.videoUrl;
   }

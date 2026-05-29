@@ -7,8 +7,13 @@ import { AnswerPanel } from "./AnswerPanel";
 interface VideoQuizPlayerProps {
   clip: LessonClip;
   isLastClip: boolean;
-  onComplete: (clipId: string) => void;
+  onComplete: (input: {
+    clipId: string;
+    selectedAnswer: SetOption;
+    isCorrect: boolean;
+  }) => void;
   onNext: () => void;
+  progressError?: string | null;
 }
 
 export function VideoQuizPlayer({
@@ -16,6 +21,7 @@ export function VideoQuizPlayer({
   isLastClip,
   onComplete,
   onNext,
+  progressError,
 }: VideoQuizPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasPausedForQuestion, setHasPausedForQuestion] = useState(false);
@@ -39,9 +45,15 @@ export function VideoQuizPlayer({
   };
 
   const handleAnswer = (selected: SetOption) => {
+    const video = videoRef.current;
     const isCorrect = selected === clip.correctAnswer;
+
     setAnswer({ selected, isCorrect });
-    onComplete(clip.id);
+    onComplete({ clipId: clip.id, selectedAnswer: selected, isCorrect });
+
+    if (video) {
+      void video.play();
+    }
   };
 
   const handleReplay = () => {
@@ -104,6 +116,7 @@ export function VideoQuizPlayer({
           isLastClip={isLastClip}
           onAnswer={handleAnswer}
           onContinue={onNext}
+          progressError={progressError}
         />
       )}
     </main>

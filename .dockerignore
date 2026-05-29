@@ -1,0 +1,10 @@
+node_modules
+apps/sas-api/node_modules
+apps/sas-api/dist
+dist
+.git
+.env
+.env.local
+*.log
+*.tsbuildinfo
+mvp-screenshot.png

@@ -1,31 +1,86 @@
-import { Trophy } from "lucide-react";
+import { ChartLine, Play, RotateCcw, Trophy, Video } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ProgressRail } from "./components/ProgressRail";
+import { SessionProgressModal } from "./components/SessionProgressModal";
 import { VideoQuizPlayer } from "./components/VideoQuizPlayer";
 import { loadLessonClips } from "./services/lessonCatalog";
-import type { LessonClip } from "./types";
+import {
+  loadPlayerProgress,
+  recordPlayerAnswer,
+  resetPlayerProgress,
+} from "./services/playerProgress";
+import {
+  createSessionProgressPoint,
+  loadSessionProgress,
+  resetSessionProgress,
+  saveSessionProgress,
+} from "./services/sessionProgress";
+import type { LessonClip, PlayerProgress, SessionProgressPoint, SetOption } from "./types";
 
-export function App() {
-  const [lessonClips, setLessonClips] = useState<LessonClip[]>([]);
+interface AppProps {
+  getAccessToken?: () => Promise<string>;
+}
+
+const sessionSizeOptions = [10, 20, 30] as const;
+
+const buildRandomSession = (clips: LessonClip[], requestedSize: number) => {
+  const shuffled = [...clips];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled.slice(0, Math.min(requestedSize, clips.length));
+};
+
+export function App({ getAccessToken }: AppProps) {
+  const [availableClips, setAvailableClips] = useState<LessonClip[]>([]);
+  const [sessionClips, setSessionClips] = useState<LessonClip[]>([]);
+  const [sessionSize, setSessionSize] = useState<(typeof sessionSizeOptions)[number]>(10);
+  const [hasStartedSession, setHasStartedSession] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [sessionAnswers, setSessionAnswers] = useState<Record<string, boolean>>({});
+  const [sessionProgress, setSessionProgress] = useState<SessionProgressPoint[]>(() =>
+    loadSessionProgress(),
+  );
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [progressError, setProgressError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const currentClip = lessonClips[currentIndex];
+  const [playerProgress, setPlayerProgress] = useState<PlayerProgress | null>(null);
+  const currentClip = sessionClips[currentIndex];
 
-  const score = useMemo(() => completedIds.length, [completedIds]);
+  const score = useMemo(
+    () =>
+      completedIds.filter((clipId) => {
+        const stats = playerProgress?.lessonStats[clipId];
+        return stats && stats.correct > 0;
+      }).length,
+    [completedIds, playerProgress],
+  );
 
   useEffect(() => {
     let isActive = true;
 
-    loadLessonClips()
-      .then((clips) => {
+    Promise.resolve(getAccessToken?.())
+      .then(async (accessToken) => {
+        const [clips, progress] = await Promise.all([
+          loadLessonClips(accessToken),
+          accessToken ? loadPlayerProgress(accessToken) : Promise.resolve(null),
+        ]);
+
+        return { clips, progress };
+      })
+      .then(({ clips, progress }) => {
         if (!isActive) {
           return;
         }
 
-        setLessonClips(clips);
+        setAvailableClips(clips);
+        setPlayerProgress(progress);
         setLoadError(null);
       })
       .catch((error: unknown) => {
@@ -46,16 +101,53 @@ export function App() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [getAccessToken]);
 
-  const handleComplete = (clipId: string) => {
+  const handleComplete = async (input: {
+    clipId: string;
+    selectedAnswer: SetOption;
+    isCorrect: boolean;
+  }) => {
+    setSessionAnswers((existing) => ({
+      ...existing,
+      [input.clipId]: input.isCorrect,
+    }));
     setCompletedIds((existing) =>
-      existing.includes(clipId) ? existing : [...existing, clipId],
+      existing.includes(input.clipId) ? existing : [...existing, input.clipId],
     );
+
+    if (!getAccessToken) {
+      return;
+    }
+
+    try {
+      const accessToken = await getAccessToken();
+      const progress = await recordPlayerAnswer({
+        accessToken,
+        lessonId: input.clipId,
+        selectedAnswer: input.selectedAnswer,
+        isCorrect: input.isCorrect,
+      });
+
+      setPlayerProgress(progress);
+      setProgressError(null);
+    } catch (error) {
+      setProgressError(error instanceof Error ? error.message : "Unable to save progress.");
+    }
   };
 
   const handleNext = () => {
-    if (currentIndex === lessonClips.length - 1) {
+    if (currentIndex === sessionClips.length - 1) {
+      const correctCount = sessionClips.filter((clip) => sessionAnswers[clip.id]).length;
+      const progressPoint = createSessionProgressPoint({
+        correctCount,
+        existingPoints: sessionProgress,
+        videoCount: sessionClips.length,
+      });
+      const nextProgress = [...sessionProgress, progressPoint];
+
+      setSessionProgress(nextProgress);
+      saveSessionProgress(nextProgress);
       setIsFinished(true);
       return;
     }
@@ -63,10 +155,46 @@ export function App() {
     setCurrentIndex((index) => index + 1);
   };
 
+  const handleStartSession = () => {
+    setSessionClips(buildRandomSession(availableClips, sessionSize));
+    setCurrentIndex(0);
+    setCompletedIds([]);
+    setSessionAnswers({});
+    setIsFinished(false);
+    setHasStartedSession(true);
+  };
+
   const handleRestart = () => {
     setCurrentIndex(0);
     setCompletedIds([]);
+    setSessionAnswers({});
     setIsFinished(false);
+  };
+
+  const handleResetProgress = async () => {
+    setCurrentIndex(0);
+    setCompletedIds([]);
+    setSessionAnswers({});
+    setIsFinished(false);
+    setHasStartedSession(false);
+
+    if (!getAccessToken) {
+      return;
+    }
+
+    try {
+      const accessToken = await getAccessToken();
+      const progress = await resetPlayerProgress(accessToken);
+      setPlayerProgress(progress);
+      setProgressError(null);
+    } catch (error) {
+      setProgressError(error instanceof Error ? error.message : "Unable to reset progress.");
+    }
+  };
+
+  const handleResetSessionProgress = () => {
+    resetSessionProgress();
+    setSessionProgress([]);
   };
 
   if (isLoading) {
@@ -78,7 +206,7 @@ export function App() {
     );
   }
 
-  if (loadError || lessonClips.length === 0) {
+  if (loadError || availableClips.length === 0) {
     return (
       <main className="center-state">
         <p className="eyebrow">Metadata issue</p>
@@ -88,35 +216,110 @@ export function App() {
     );
   }
 
+  if (!hasStartedSession) {
+    return (
+      <main className="center-state session-start">
+        <Video size={44} />
+        <p className="eyebrow">Training session</p>
+        <h1>Set selection reads</h1>
+        <div className="session-options" aria-label="Session video count">
+          {sessionSizeOptions.map((option) => (
+            <button
+              aria-pressed={sessionSize === option}
+              className={[
+                "session-option",
+                sessionSize === option ? "selected" : "",
+              ].join(" ")}
+              key={option}
+              onClick={() => setSessionSize(option)}
+              type="button"
+            >
+              <span>{option}</span>
+              videos
+            </button>
+          ))}
+        </div>
+        <button className="primary-action" onClick={handleStartSession} type="button">
+          <Play size={18} />
+          Begin Session
+        </button>
+        <button
+          className="text-action"
+          onClick={() => setIsProgressModalOpen(true)}
+          type="button"
+        >
+          <ChartLine size={16} />
+          View progress chart
+        </button>
+        {progressError ? <p className="error-text">{progressError}</p> : null}
+        {isProgressModalOpen ? (
+          <SessionProgressModal
+            onClose={() => setIsProgressModalOpen(false)}
+            onReset={handleResetSessionProgress}
+            points={sessionProgress}
+          />
+        ) : null}
+      </main>
+    );
+  }
+
   return (
     <div className="app-shell">
       <ProgressRail
-        clips={lessonClips}
+        clips={sessionClips}
         completedIds={completedIds}
         currentIndex={currentIndex}
+        playerProgress={playerProgress}
+        onResetProgress={handleResetProgress}
+        onViewSessionProgress={() => setIsProgressModalOpen(true)}
       />
 
       {isFinished ? (
         <main className="finish-state">
           <Trophy size={44} />
           <p className="eyebrow">Lesson complete</p>
-          <h1>{score} clips reviewed</h1>
+          <h1>{score} correct reads</h1>
           <p>
             The MVP flow is ready for real volleyball clips: upload videos to Azure,
             set each pause timestamp, and tune the feedback for your coaching model.
           </p>
+          {progressError ? <p className="error-text">{progressError}</p> : null}
           <button className="primary-action" onClick={handleRestart} type="button">
-            Restart lesson
+            Restart session
+          </button>
+          <button className="text-action" onClick={handleStartSession} type="button">
+            <Play size={16} />
+            New random session
+          </button>
+          <button
+            className="text-action"
+            onClick={() => setIsProgressModalOpen(true)}
+            type="button"
+          >
+            <ChartLine size={16} />
+            View progress chart
+          </button>
+          <button className="text-action" onClick={handleResetProgress} type="button">
+            <RotateCcw size={16} />
+            Reset progress
           </button>
         </main>
       ) : (
         <VideoQuizPlayer
           clip={currentClip}
-          isLastClip={currentIndex === lessonClips.length - 1}
+          isLastClip={currentIndex === sessionClips.length - 1}
           onComplete={handleComplete}
           onNext={handleNext}
+          progressError={progressError}
         />
       )}
+      {isProgressModalOpen ? (
+        <SessionProgressModal
+          onClose={() => setIsProgressModalOpen(false)}
+          onReset={handleResetSessionProgress}
+          points={sessionProgress}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build frontend, API, and containers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Install API dependencies
+        working-directory: apps/sas-api
+        run: npm ci
+
+      - name: Build API
+        working-directory: apps/sas-api
+        run: npm run build
+
+      - name: Build frontend Docker image
+        run: docker build -t volleyball-tutor:ci .
+
+      - name: Build API Docker image
+        run: docker build -f apps/sas-api/Dockerfile -t volleyball-tutor-sas-api:ci .

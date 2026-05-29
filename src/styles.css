@@ -26,6 +26,24 @@ button {
   display: grid;
   grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
   min-height: 100vh;
+  padding-top: 0;
+}
+
+.account-bar {
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #dfe5db;
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  min-height: 58px;
+  padding: 10px 28px;
+}
+
+.account-bar span {
+  color: #5f6d63;
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 .progress-rail {
@@ -48,6 +66,33 @@ button {
   list-style: none;
   margin: 28px 0 0;
   padding: 0;
+}
+
+.progress-summary {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.progress-summary > div {
+  align-items: center;
+  border: 1px solid rgba(247, 248, 244, 0.14);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: auto 1fr auto;
+  padding: 10px 12px;
+}
+
+.progress-summary span {
+  color: #b9c4bb;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.progress-summary strong {
+  font-size: 1.15rem;
 }
 
 .progress-rail li {
@@ -184,6 +229,14 @@ video {
     color 160ms ease;
 }
 
+.rail-action {
+  background: rgba(247, 248, 244, 0.08);
+  border-color: rgba(247, 248, 244, 0.18);
+  color: #f7f8f4;
+  margin-top: 16px;
+  width: 100%;
+}
+
 .option-button {
   background: #eef2ea;
   border-radius: 8px;
@@ -214,6 +267,11 @@ video {
   cursor: default;
 }
 
+.text-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .feedback {
   align-items: flex-start;
   border-radius: 8px;
@@ -238,10 +296,14 @@ video {
 }
 
 .primary-action {
+  align-items: center;
   background: #e8c547;
   border-radius: 8px;
   color: #101714;
+  display: inline-flex;
+  gap: 8px;
   font-weight: 900;
+  justify-content: center;
   min-height: 48px;
   padding: 12px 16px;
 }
@@ -280,15 +342,16 @@ video {
 .finish-state,
 .center-state {
   display: grid;
+  gap: 16px;
   justify-items: start;
   margin: auto;
   max-width: 620px;
   padding: 28px;
 }
 
-.finish-state svg {
+.finish-state svg,
+.session-start > svg {
   color: #e8c547;
-  margin-bottom: 18px;
 }
 
 .finish-state p:not(.eyebrow),
@@ -296,6 +359,196 @@ video {
   color: #5f6d63;
   font-size: 1.08rem;
   line-height: 1.6;
+}
+
+.center-state .error-text {
+  color: #923224;
+  font-weight: 700;
+  margin-top: 0;
+}
+
+.answer-panel .error-text,
+.finish-state .error-text {
+  color: #923224;
+  font-weight: 700;
+  margin: 0;
+}
+
+.session-options {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 460px);
+}
+
+.session-option {
+  background: #ffffff;
+  border: 1px solid #dfe5db;
+  border-radius: 8px;
+  color: #17221b;
+  cursor: pointer;
+  display: grid;
+  font-weight: 800;
+  min-height: 86px;
+  padding: 12px;
+  place-items: center;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.session-option span {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.session-option:hover,
+.session-option.selected {
+  border-color: #e8c547;
+  box-shadow: 0 12px 28px rgba(16, 23, 20, 0.1);
+  transform: translateY(-1px);
+}
+
+.modal-backdrop {
+  align-items: center;
+  background: rgba(16, 23, 20, 0.58);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 22px;
+  position: fixed;
+  z-index: 20;
+}
+
+.progress-modal {
+  background: #ffffff;
+  border: 1px solid #dfe5db;
+  border-radius: 8px;
+  box-shadow: 0 24px 72px rgba(16, 23, 20, 0.24);
+  color: #17221b;
+  display: grid;
+  gap: 18px;
+  max-height: min(90vh, 760px);
+  max-width: 860px;
+  overflow: auto;
+  padding: 22px;
+  width: min(100%, 860px);
+}
+
+.modal-heading {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.modal-heading h2,
+.empty-chart-state h3 {
+  letter-spacing: 0;
+  margin: 0;
+}
+
+.modal-heading h2 {
+  color: #f26b2c;
+  font-size: 1.55rem;
+}
+
+.chart-frame {
+  border: 1px solid #dfe5db;
+  border-radius: 8px;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.progress-chart {
+  display: block;
+  min-width: 640px;
+  width: 100%;
+}
+
+.chart-gridline {
+  stroke: #e9ede5;
+  stroke-width: 1;
+}
+
+.chart-axis {
+  stroke: #b9c4bb;
+  stroke-width: 1.5;
+}
+
+.chart-axis-label,
+.chart-x-label {
+  fill: #5f6d63;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.chart-axis-label {
+  text-anchor: end;
+}
+
+.chart-line {
+  fill: none;
+  stroke: #f26b2c;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.chart-point {
+  fill: #ffffff;
+  stroke: #f26b2c;
+  stroke-width: 3;
+}
+
+.progress-table-wrap {
+  overflow-x: auto;
+}
+
+.progress-table {
+  border-collapse: collapse;
+  min-width: 640px;
+  width: 100%;
+}
+
+.progress-table th,
+.progress-table td {
+  border-bottom: 1px solid #dfe5db;
+  padding: 10px;
+  text-align: left;
+}
+
+.progress-table th {
+  color: #5f6d63;
+  font-size: 0.76rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.progress-table td {
+  font-weight: 700;
+}
+
+.empty-chart-state {
+  background: #f7f8f4;
+  border: 1px solid #dfe5db;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding: 28px;
+}
+
+.empty-chart-state p {
+  color: #5f6d63;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 @media (max-width: 980px) {
@@ -325,5 +578,9 @@ video {
 
   .video-heading {
     align-items: flex-start;
+  }
+
+  .session-options {
+    grid-template-columns: 1fr;
   }
 }
