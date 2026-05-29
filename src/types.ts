@@ -33,3 +33,12 @@ export interface PlayerProgress {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface SessionProgressPoint {
+  id: string;
+  sessionNumber: number;
+  completedAt: string;
+  videoCount: number;
+  correctCount: number;
+  accuracy: number;
+}

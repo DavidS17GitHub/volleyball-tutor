@@ -1,6 +1,7 @@
-import { Play, RotateCcw, Trophy, Video } from "lucide-react";
+import { ChartLine, Play, RotateCcw, Trophy, Video } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ProgressRail } from "./components/ProgressRail";
+import { SessionProgressModal } from "./components/SessionProgressModal";
 import { VideoQuizPlayer } from "./components/VideoQuizPlayer";
 import { loadLessonClips } from "./services/lessonCatalog";
 import {
@@ -8,7 +9,13 @@ import {
   recordPlayerAnswer,
   resetPlayerProgress,
 } from "./services/playerProgress";
-import type { LessonClip, PlayerProgress, SetOption } from "./types";
+import {
+  createSessionProgressPoint,
+  loadSessionProgress,
+  resetSessionProgress,
+  saveSessionProgress,
+} from "./services/sessionProgress";
+import type { LessonClip, PlayerProgress, SessionProgressPoint, SetOption } from "./types";
 
 interface AppProps {
   getAccessToken?: () => Promise<string>;
@@ -34,6 +41,11 @@ export function App({ getAccessToken }: AppProps) {
   const [hasStartedSession, setHasStartedSession] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [sessionAnswers, setSessionAnswers] = useState<Record<string, boolean>>({});
+  const [sessionProgress, setSessionProgress] = useState<SessionProgressPoint[]>(() =>
+    loadSessionProgress(),
+  );
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [progressError, setProgressError] = useState<string | null>(null);
@@ -96,6 +108,10 @@ export function App({ getAccessToken }: AppProps) {
     selectedAnswer: SetOption;
     isCorrect: boolean;
   }) => {
+    setSessionAnswers((existing) => ({
+      ...existing,
+      [input.clipId]: input.isCorrect,
+    }));
     setCompletedIds((existing) =>
       existing.includes(input.clipId) ? existing : [...existing, input.clipId],
     );
@@ -122,6 +138,16 @@ export function App({ getAccessToken }: AppProps) {
 
   const handleNext = () => {
     if (currentIndex === sessionClips.length - 1) {
+      const correctCount = sessionClips.filter((clip) => sessionAnswers[clip.id]).length;
+      const progressPoint = createSessionProgressPoint({
+        correctCount,
+        existingPoints: sessionProgress,
+        videoCount: sessionClips.length,
+      });
+      const nextProgress = [...sessionProgress, progressPoint];
+
+      setSessionProgress(nextProgress);
+      saveSessionProgress(nextProgress);
       setIsFinished(true);
       return;
     }
@@ -133,6 +159,7 @@ export function App({ getAccessToken }: AppProps) {
     setSessionClips(buildRandomSession(availableClips, sessionSize));
     setCurrentIndex(0);
     setCompletedIds([]);
+    setSessionAnswers({});
     setIsFinished(false);
     setHasStartedSession(true);
   };
@@ -140,12 +167,14 @@ export function App({ getAccessToken }: AppProps) {
   const handleRestart = () => {
     setCurrentIndex(0);
     setCompletedIds([]);
+    setSessionAnswers({});
     setIsFinished(false);
   };
 
   const handleResetProgress = async () => {
     setCurrentIndex(0);
     setCompletedIds([]);
+    setSessionAnswers({});
     setIsFinished(false);
     setHasStartedSession(false);
 
@@ -161,6 +190,11 @@ export function App({ getAccessToken }: AppProps) {
     } catch (error) {
       setProgressError(error instanceof Error ? error.message : "Unable to reset progress.");
     }
+  };
+
+  const handleResetSessionProgress = () => {
+    resetSessionProgress();
+    setSessionProgress([]);
   };
 
   if (isLoading) {
@@ -209,7 +243,22 @@ export function App({ getAccessToken }: AppProps) {
           <Play size={18} />
           Begin Session
         </button>
+        <button
+          className="text-action"
+          onClick={() => setIsProgressModalOpen(true)}
+          type="button"
+        >
+          <ChartLine size={16} />
+          View progress chart
+        </button>
         {progressError ? <p className="error-text">{progressError}</p> : null}
+        {isProgressModalOpen ? (
+          <SessionProgressModal
+            onClose={() => setIsProgressModalOpen(false)}
+            onReset={handleResetSessionProgress}
+            points={sessionProgress}
+          />
+        ) : null}
       </main>
     );
   }
@@ -222,6 +271,7 @@ export function App({ getAccessToken }: AppProps) {
         currentIndex={currentIndex}
         playerProgress={playerProgress}
         onResetProgress={handleResetProgress}
+        onViewSessionProgress={() => setIsProgressModalOpen(true)}
       />
 
       {isFinished ? (
@@ -241,6 +291,14 @@ export function App({ getAccessToken }: AppProps) {
             <Play size={16} />
             New random session
           </button>
+          <button
+            className="text-action"
+            onClick={() => setIsProgressModalOpen(true)}
+            type="button"
+          >
+            <ChartLine size={16} />
+            View progress chart
+          </button>
           <button className="text-action" onClick={handleResetProgress} type="button">
             <RotateCcw size={16} />
             Reset progress
@@ -255,6 +313,13 @@ export function App({ getAccessToken }: AppProps) {
           progressError={progressError}
         />
       )}
+      {isProgressModalOpen ? (
+        <SessionProgressModal
+          onClose={() => setIsProgressModalOpen(false)}
+          onReset={handleResetSessionProgress}
+          points={sessionProgress}
+        />
+      ) : null}
     </div>
   );
 }

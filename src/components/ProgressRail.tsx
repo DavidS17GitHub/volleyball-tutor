@@ -1,4 +1,4 @@
-import { RotateCcw, Target } from "lucide-react";
+import { ChartLine, RotateCcw, Target } from "lucide-react";
 import type { LessonClip, PlayerProgress } from "../types";
 
 interface ProgressRailProps {
@@ -7,6 +7,7 @@ interface ProgressRailProps {
   completedIds: string[];
   playerProgress: PlayerProgress | null;
   onResetProgress: () => void;
+  onViewSessionProgress: () => void;
 }
 
 const formatPercent = (correct: number, attempts: number) =>
@@ -18,6 +19,7 @@ export function ProgressRail({
   completedIds,
   playerProgress,
   onResetProgress,
+  onViewSessionProgress,
 }: ProgressRailProps) {
   const currentClip = clips[currentIndex];
 
@@ -73,6 +75,10 @@ export function ProgressRail({
       <button className="text-action rail-action" onClick={onResetProgress} type="button">
         <RotateCcw size={16} />
         Reset progress
+      </button>
+      <button className="text-action rail-action" onClick={onViewSessionProgress} type="button">
+        <ChartLine size={16} />
+        View chart
       </button>
     </aside>
   );
