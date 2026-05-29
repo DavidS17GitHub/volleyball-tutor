@@ -43,7 +43,7 @@ const translations = {
     replayClip: "Replay clip",
     session: "Session",
     sessionCompleteMessage:
-      "The MVP flow is ready for real volleyball clips: upload videos to Azure, set each pause timestamp, and tune the feedback for your coaching model.",
+      "The session has been completed.",
     sessionCorrectReads: "{count} correct reads",
     sessionHistory: "Session history",
     sessionVideoCount: "Session video count",
@@ -63,9 +63,9 @@ const translations = {
   es: {
     accuracy: "Precisión",
     attempts: "Intentos",
-    beginSession: "Iniciar sesión",
+    beginSession: "Comenzar sesión",
     bestStreak: "Mejor racha",
-    center: "Centro",
+    center: "Central",
     closeProgressChart: "Cerrar gráfico de progreso",
     completed: "Completado",
     correct: "Correctas",
@@ -76,7 +76,7 @@ const translations = {
     finishSessionToAddPoint:
       "Termina una sesión de entrenamiento para agregar el primer punto de precisión.",
     lesson: "Lección",
-    lessonComplete: "Sesión completa",
+    lessonComplete: "Sesión completada",
     lessonsUnavailable: "Las lecciones no están disponibles",
     loading: "Cargando",
     metadataIssue: "Problema de metadatos",
@@ -98,11 +98,11 @@ const translations = {
     replayClip: "Repetir video",
     session: "Sesión",
     sessionCompleteMessage:
-      "El flujo MVP está listo para videos reales de voleibol: sube videos a Azure, configura cada tiempo de pausa y ajusta la retroalimentación para tu modelo de entrenamiento.",
+      "La sesión ha sido completada.",
     sessionCorrectReads: "{count} lecturas correctas",
     sessionHistory: "Historial de sesiones",
     sessionVideoCount: "Cantidad de videos por sesión",
-    setSelectionReads: "Lecturas de selección de pase",
+    setSelectionReads: "Lecturas de selección de armador",
     showDecision: "Mostrar decisión",
     signIn: "Iniciar sesión",
     signInToStartTraining: "Inicia sesión para entrenar",
@@ -113,7 +113,7 @@ const translations = {
     videos: "Videos",
     viewChart: "Ver gráfico",
     viewProgressChart: "Ver gráfico de progreso",
-    whatSetShouldSetterChoose: "¿Qué pase debería elegir el colocador?",
+    whatSetShouldSetterChoose: "¿Qué pase debería elegir el armador?",
   },
 } as const;
 
