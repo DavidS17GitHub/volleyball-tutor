@@ -1,4 +1,4 @@
-import { RotateCcw, Trophy } from "lucide-react";
+import { Play, RotateCcw, Trophy, Video } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ProgressRail } from "./components/ProgressRail";
 import { VideoQuizPlayer } from "./components/VideoQuizPlayer";
@@ -14,8 +14,24 @@ interface AppProps {
   getAccessToken?: () => Promise<string>;
 }
 
+const sessionSizeOptions = [10, 20, 30] as const;
+
+const buildRandomSession = (clips: LessonClip[], requestedSize: number) => {
+  const shuffled = [...clips];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled.slice(0, Math.min(requestedSize, clips.length));
+};
+
 export function App({ getAccessToken }: AppProps) {
-  const [lessonClips, setLessonClips] = useState<LessonClip[]>([]);
+  const [availableClips, setAvailableClips] = useState<LessonClip[]>([]);
+  const [sessionClips, setSessionClips] = useState<LessonClip[]>([]);
+  const [sessionSize, setSessionSize] = useState<(typeof sessionSizeOptions)[number]>(10);
+  const [hasStartedSession, setHasStartedSession] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [isFinished, setIsFinished] = useState(false);
@@ -23,7 +39,7 @@ export function App({ getAccessToken }: AppProps) {
   const [progressError, setProgressError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [playerProgress, setPlayerProgress] = useState<PlayerProgress | null>(null);
-  const currentClip = lessonClips[currentIndex];
+  const currentClip = sessionClips[currentIndex];
 
   const score = useMemo(
     () =>
@@ -51,7 +67,7 @@ export function App({ getAccessToken }: AppProps) {
           return;
         }
 
-        setLessonClips(clips);
+        setAvailableClips(clips);
         setPlayerProgress(progress);
         setLoadError(null);
       })
@@ -105,12 +121,20 @@ export function App({ getAccessToken }: AppProps) {
   };
 
   const handleNext = () => {
-    if (currentIndex === lessonClips.length - 1) {
+    if (currentIndex === sessionClips.length - 1) {
       setIsFinished(true);
       return;
     }
 
     setCurrentIndex((index) => index + 1);
+  };
+
+  const handleStartSession = () => {
+    setSessionClips(buildRandomSession(availableClips, sessionSize));
+    setCurrentIndex(0);
+    setCompletedIds([]);
+    setIsFinished(false);
+    setHasStartedSession(true);
   };
 
   const handleRestart = () => {
@@ -123,6 +147,7 @@ export function App({ getAccessToken }: AppProps) {
     setCurrentIndex(0);
     setCompletedIds([]);
     setIsFinished(false);
+    setHasStartedSession(false);
 
     if (!getAccessToken) {
       return;
@@ -147,7 +172,7 @@ export function App({ getAccessToken }: AppProps) {
     );
   }
 
-  if (loadError || lessonClips.length === 0) {
+  if (loadError || availableClips.length === 0) {
     return (
       <main className="center-state">
         <p className="eyebrow">Metadata issue</p>
@@ -157,10 +182,42 @@ export function App({ getAccessToken }: AppProps) {
     );
   }
 
+  if (!hasStartedSession) {
+    return (
+      <main className="center-state session-start">
+        <Video size={44} />
+        <p className="eyebrow">Training session</p>
+        <h1>Set selection reads</h1>
+        <div className="session-options" aria-label="Session video count">
+          {sessionSizeOptions.map((option) => (
+            <button
+              aria-pressed={sessionSize === option}
+              className={[
+                "session-option",
+                sessionSize === option ? "selected" : "",
+              ].join(" ")}
+              key={option}
+              onClick={() => setSessionSize(option)}
+              type="button"
+            >
+              <span>{option}</span>
+              videos
+            </button>
+          ))}
+        </div>
+        <button className="primary-action" onClick={handleStartSession} type="button">
+          <Play size={18} />
+          Begin Session
+        </button>
+        {progressError ? <p className="error-text">{progressError}</p> : null}
+      </main>
+    );
+  }
+
   return (
     <div className="app-shell">
       <ProgressRail
-        clips={lessonClips}
+        clips={sessionClips}
         completedIds={completedIds}
         currentIndex={currentIndex}
         playerProgress={playerProgress}
@@ -178,7 +235,11 @@ export function App({ getAccessToken }: AppProps) {
           </p>
           {progressError ? <p className="error-text">{progressError}</p> : null}
           <button className="primary-action" onClick={handleRestart} type="button">
-            Restart lesson
+            Restart session
+          </button>
+          <button className="text-action" onClick={handleStartSession} type="button">
+            <Play size={16} />
+            New random session
           </button>
           <button className="text-action" onClick={handleResetProgress} type="button">
             <RotateCcw size={16} />
@@ -188,7 +249,7 @@ export function App({ getAccessToken }: AppProps) {
       ) : (
         <VideoQuizPlayer
           clip={currentClip}
-          isLastClip={currentIndex === lessonClips.length - 1}
+          isLastClip={currentIndex === sessionClips.length - 1}
           onComplete={handleComplete}
           onNext={handleNext}
           progressError={progressError}
